@@ -8,15 +8,11 @@ WORKDIR /builds
 
 RUN mvn clean package -Dmaven.test.skip=true
 
-RUN ls -al /builds
-
 FROM amazoncorretto:17
 
 ARG APPLICATION
 ARG CLUSTER
 ARG ENVIRONMENT
-
-RUN echo "APPLICATION: $APPLICATION, CLUSTER: $CLUSTER, ENVIRONMENT: $ENVIRONMENT"
 
 COPY --from=builder /builds/target/*.jar /lib/app.jar
 
