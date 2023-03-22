@@ -6,18 +6,9 @@ COPY ./settings.xml /usr/share/maven/conf/settings.xml
 
 WORKDIR /builds
 
-RUN mvn clean package -Dmaven.test.skip=true
+RUN mvn clean package -Dmaven.test.skip=true \
+    && cp /builds/target/*.jar /lib/app.jar
 
-FROM amazoncorretto:17
+ENV D_SERVER_PORT 8080
 
-ARG APPLICATION
-ARG CLUSTER
-ARG ENVIRONMENT
-
-COPY --from=builder /builds/target/*.jar /lib/app.jar
-
-RUN yum install -y tar && yum install -y gzip && mkdir -p /artifacts && tar -zcf /artifacts/artifacts.tar.gz /lib/app.jar
-
-# RUN chown -R $USER:$GROUP /artifacts
-
-CMD exec java $JAVA_OPTS -jar /lib/app.jar -Dserver.port=8888 -DAPPLICATION=$APPLICATION -DCLUSTER=$CLUSTER -DENVIRONMENT=$ENVIRONMENT
+CMD exec java $JAVA_OPTS -jar /lib/app.jar -Dserver.port=${D_SERVER_PORT}
